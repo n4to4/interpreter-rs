@@ -68,26 +68,24 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let position = self.position;
-        while self.ch.filter(|ch| is_letter(*ch)).is_some() {
+        while self.ch.map_or(false, is_letter) {
             self.read_char();
         }
-        String::from(&(self.input[position..self.position]))
+        String::from(&self.input[position..self.position])
     }
 
     fn read_number(&mut self) -> String {
         let position = self.position;
-        while self.ch.filter(|ch| is_digit(*ch)).is_some() {
+        while self.ch.map_or(false, is_digit) {
             self.read_char();
         }
-        String::from(&(self.input[position..self.position]))
+        String::from(&self.input[position..self.position])
     }
 
     fn skip_whitespace(&mut self) {
-        while self
-            .ch
-            .filter(|ch| *ch == ' ' || *ch == '\t' || *ch == '\n' || *ch == '\r')
-            .is_some()
-        {
+        while self.ch.map_or(false, |ch| {
+            ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
+        }) {
             self.read_char();
         }
     }
