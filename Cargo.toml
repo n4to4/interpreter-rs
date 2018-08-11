@@ -1,0 +1,7 @@
+[package]
+name = "interpreter"
+version = "0.1.0"
+authors = ["n4to4 <n4to4k@gmail.com>"]
+
+[dev_dependencies]
+pretty_assertions = "0.5.1"
