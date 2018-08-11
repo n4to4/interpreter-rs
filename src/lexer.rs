@@ -5,7 +5,7 @@ pub struct Lexer {
     ch: Option<char>,     // current char under examination
 }
 
-use token::{TokenType::*, *};
+use token::{self, Token, TokenType, TokenType::*};
 
 impl Lexer {
     pub fn new(input: String) -> Self {
@@ -30,6 +30,8 @@ impl Lexer {
     }
 
     pub fn next_token(&mut self) -> Token {
+        self.skip_whitespace();
+
         let tok = match self.ch {
             Some(ch @ '=') => new_token(ASSIGN, ch),
             Some(ch @ ';') => new_token(SEMICOLON, ch),
@@ -39,13 +41,55 @@ impl Lexer {
             Some(ch @ '+') => new_token(PLUS, ch),
             Some(ch @ '{') => new_token(LBRACE, ch),
             Some(ch @ '}') => new_token(RBRACE, ch),
-            Some(_) | None => Token {
+            Some(ch @ _) => {
+                if is_letter(ch) {
+                    let lit = self.read_identifier();
+                    return Token {
+                        typ: token::lookup_ident(&lit),
+                        literal: lit,
+                    };
+                } else if is_digit(ch) {
+                    return Token {
+                        typ: INT,
+                        literal: self.read_number(),
+                    };
+                } else {
+                    new_token(ILLEGAL, ch)
+                }
+            }
+            None => Token {
                 typ: EOF,
                 literal: String::from(""),
             },
         };
         self.read_char();
         tok
+    }
+
+    fn read_identifier(&mut self) -> String {
+        let position = self.position;
+        while self.ch.filter(|ch| is_letter(*ch)).is_some() {
+            self.read_char();
+        }
+        String::from(&(self.input[position..self.position]))
+    }
+
+    fn read_number(&mut self) -> String {
+        let position = self.position;
+        while self.ch.filter(|ch| is_digit(*ch)).is_some() {
+            self.read_char();
+        }
+        String::from(&(self.input[position..self.position]))
+    }
+
+    fn skip_whitespace(&mut self) {
+        while self
+            .ch
+            .filter(|ch| *ch == ' ' || *ch == '\t' || *ch == '\n' || *ch == '\r')
+            .is_some()
+        {
+            self.read_char();
+        }
     }
 }
 
@@ -54,4 +98,12 @@ fn new_token(typ: TokenType, ch: char) -> Token {
         typ: typ,
         literal: ch.to_string(),
     }
+}
+
+fn is_letter(ch: char) -> bool {
+    'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+fn is_digit(ch: char) -> bool {
+    '0' <= ch && ch <= '9'
 }

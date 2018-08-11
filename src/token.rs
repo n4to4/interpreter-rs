@@ -31,6 +31,16 @@ pub enum TokenType {
     LET,
 }
 
+use self::TokenType::*;
+
+pub fn lookup_ident(ident: &str) -> TokenType {
+    match ident {
+        "fn" => FUNCTION,
+        "let" => LET,
+        _ => IDENT,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -38,8 +48,6 @@ mod tests {
 
     #[test]
     fn next_token() {
-        use self::TokenType::*;
-
         let input = "=+(){},;";
         let tests = vec![
             (ASSIGN, "="),
@@ -50,6 +58,67 @@ mod tests {
             (RBRACE, "}"),
             (COMMA, ","),
             (SEMICOLON, ";"),
+        ];
+
+        let mut l = Lexer::new(String::from(input));
+        for (to, le) in tests.iter() {
+            let tok = l.next_token();
+
+            assert_eq!(tok.typ, *to);
+            assert_eq!(tok.literal, *le);
+        }
+    }
+
+    #[test]
+    fn next_token2() {
+        let input = r#"let five = 5;
+let ten = 10;
+
+let add = fn(x, y) {
+    x + y;
+};
+
+let result = add(five, ten);
+"#;
+
+        let tests = vec![
+            (LET, "let"),
+            (IDENT, "five"),
+            (ASSIGN, "="),
+            (INT, "5"),
+            (SEMICOLON, ";"),
+            (LET, "let"),
+            (IDENT, "ten"),
+            (ASSIGN, "="),
+            (INT, "10"),
+            (SEMICOLON, ";"),
+            (LET, "let"),
+            (IDENT, "add"),
+            (ASSIGN, "="),
+            (FUNCTION, "fn"),
+            (LPAREN, "("),
+            (IDENT, "x"),
+            (COMMA, ","),
+            (IDENT, "y"),
+            (RPAREN, ")"),
+            (LBRACE, "{"),
+            (IDENT, "x"),
+            (PLUS, "+"),
+            (IDENT, "y"),
+            (SEMICOLON, ";"),
+            (RBRACE, "}"),
+            (SEMICOLON, ";"),
+            (LET, "let"),
+            (IDENT, "result"),
+            (ASSIGN, "="),
+            (IDENT, "add"),
+            (LPAREN, "("),
+            (IDENT, "five"),
+            (COMMA, ","),
+            (IDENT, "ten"),
+            (RPAREN, ")"),
+            (SEMICOLON, ";"),
+            (EOF, ""),
         ];
 
         let mut l = Lexer::new(String::from(input));
