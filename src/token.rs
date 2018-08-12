@@ -16,6 +16,13 @@ pub enum TokenType {
     // Operators
     ASSIGN,
     PLUS,
+    MINUS,
+    BANG,
+    ASTERISK,
+    SLASH,
+
+    LT,
+    GT,
 
     // Delimiters
     COMMA,
@@ -79,6 +86,8 @@ let add = fn(x, y) {
 };
 
 let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
 "#;
 
         let tests = vec![
@@ -117,6 +126,18 @@ let result = add(five, ten);
             (COMMA, ","),
             (IDENT, "ten"),
             (RPAREN, ")"),
+            (SEMICOLON, ";"),
+            (BANG, "!"),
+            (MINUS, "-"),
+            (SLASH, "/"),
+            (ASTERISK, "*"),
+            (INT, "5"),
+            (SEMICOLON, ";"),
+            (INT, "5"),
+            (LT, "<"),
+            (INT, "10"),
+            (GT, ">"),
+            (INT, "5"),
             (SEMICOLON, ";"),
             (EOF, ""),
         ];

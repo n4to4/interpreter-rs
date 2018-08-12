@@ -34,11 +34,17 @@ impl Lexer {
 
         let tok = match self.ch {
             Some(ch @ '=') => new_token(ASSIGN, ch),
+            Some(ch @ '+') => new_token(PLUS, ch),
+            Some(ch @ '-') => new_token(MINUS, ch),
+            Some(ch @ '!') => new_token(BANG, ch),
+            Some(ch @ '/') => new_token(SLASH, ch),
+            Some(ch @ '*') => new_token(ASTERISK, ch),
+            Some(ch @ '<') => new_token(LT, ch),
+            Some(ch @ '>') => new_token(GT, ch),
             Some(ch @ ';') => new_token(SEMICOLON, ch),
             Some(ch @ '(') => new_token(LPAREN, ch),
             Some(ch @ ')') => new_token(RPAREN, ch),
             Some(ch @ ',') => new_token(COMMA, ch),
-            Some(ch @ '+') => new_token(PLUS, ch),
             Some(ch @ '{') => new_token(LBRACE, ch),
             Some(ch @ '}') => new_token(RBRACE, ch),
             Some(ch @ _) => {
