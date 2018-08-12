@@ -23,6 +23,8 @@ pub enum TokenType {
 
     LT,
     GT,
+    EQ,
+    NOT_EQ,
 
     // Delimiters
     COMMA,
@@ -36,6 +38,11 @@ pub enum TokenType {
     // Keywords
     FUNCTION,
     LET,
+    TRUE,
+    FALSE,
+    IF,
+    ELSE,
+    RETURN,
 }
 
 use self::TokenType::*;
@@ -44,6 +51,11 @@ pub fn lookup_ident(ident: &str) -> TokenType {
     match ident {
         "fn" => FUNCTION,
         "let" => LET,
+        "true" => TRUE,
+        "false" => FALSE,
+        "if" => IF,
+        "else" => ELSE,
+        "return" => RETURN,
         _ => IDENT,
     }
 }
@@ -88,6 +100,15 @@ let add = fn(x, y) {
 let result = add(five, ten);
 !-/*5;
 5 < 10 > 5;
+
+if (5 < 10) {
+    return true;
+} else {
+    return false;
+}
+
+10 == 10;
+10 != 9;
 "#;
 
         let tests = vec![
@@ -139,12 +160,40 @@ let result = add(five, ten);
             (GT, ">"),
             (INT, "5"),
             (SEMICOLON, ";"),
+            //
+            (IF, "if"),
+            (LPAREN, "("),
+            (INT, "5"),
+            (LT, "<"),
+            (INT, "10"),
+            (RPAREN, ")"),
+            (LBRACE, "{"),
+            (RETURN, "return"),
+            (TRUE, "true"),
+            (SEMICOLON, ";"),
+            (RBRACE, "}"),
+            (ELSE, "else"),
+            (LBRACE, "{"),
+            (RETURN, "return"),
+            (FALSE, "false"),
+            (SEMICOLON, ";"),
+            (RBRACE, "}"),
+            //
+            (INT, "10"),
+            (EQ, "=="),
+            (INT, "10"),
+            (SEMICOLON, ";"),
+            (INT, "10"),
+            (NOT_EQ, "!="),
+            (INT, "9"),
+            (SEMICOLON, ";"),
             (EOF, ""),
         ];
 
         let mut l = Lexer::new(String::from(input));
         for (to, le) in tests.iter() {
             let tok = l.next_token();
+            //println!("tok: {:?}", tok);
 
             assert_eq!(tok.typ, *to);
             assert_eq!(tok.literal, *le);

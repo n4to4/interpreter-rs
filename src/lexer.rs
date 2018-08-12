@@ -29,14 +29,20 @@ impl Lexer {
         self.read_position += 1;
     }
 
+    fn peek_char(&mut self) -> Option<char> {
+        if self.read_position >= self.input.len() {
+            None
+        } else {
+            self.input.chars().nth(self.read_position)
+        }
+    }
+
     pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         let tok = match self.ch {
-            Some(ch @ '=') => new_token(ASSIGN, ch),
             Some(ch @ '+') => new_token(PLUS, ch),
             Some(ch @ '-') => new_token(MINUS, ch),
-            Some(ch @ '!') => new_token(BANG, ch),
             Some(ch @ '/') => new_token(SLASH, ch),
             Some(ch @ '*') => new_token(ASTERISK, ch),
             Some(ch @ '<') => new_token(LT, ch),
@@ -47,6 +53,28 @@ impl Lexer {
             Some(ch @ ',') => new_token(COMMA, ch),
             Some(ch @ '{') => new_token(LBRACE, ch),
             Some(ch @ '}') => new_token(RBRACE, ch),
+            Some(ch @ '=') => {
+                if self.peek_char() == Some('=') {
+                    self.read_char();
+                    Token {
+                        typ: EQ,
+                        literal: String::from("=="),
+                    }
+                } else {
+                    new_token(ASSIGN, ch)
+                }
+            }
+            Some(ch @ '!') => {
+                if self.peek_char() == Some('=') {
+                    self.read_char();
+                    Token {
+                        typ: NOT_EQ,
+                        literal: String::from("!="),
+                    }
+                } else {
+                    new_token(BANG, ch)
+                }
+            }
             Some(ch @ _) => {
                 if is_letter(ch) {
                     let lit = self.read_identifier();
