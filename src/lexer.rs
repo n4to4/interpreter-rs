@@ -1,11 +1,11 @@
+use token::{self, Token, TokenType, TokenType::*};
+
 pub struct Lexer {
     input: String,
     position: usize,      // current position in input (points to current char)
     read_position: usize, // current reading position in input (after current char)
     ch: Option<char>,     // current char under examination
 }
-
-use token::{self, Token, TokenType, TokenType::*};
 
 impl Lexer {
     pub fn new(input: String) -> Self {
@@ -121,6 +121,19 @@ impl Lexer {
             ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
         }) {
             self.read_char();
+        }
+    }
+}
+
+impl Iterator for Lexer {
+    type Item = Token;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let tok = self.next_token();
+        if tok.typ == EOF {
+            None
+        } else {
+            Some(tok)
         }
     }
 }
