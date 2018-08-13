@@ -2,7 +2,9 @@
 extern crate pretty_assertions;
 use std::{env, io};
 
+mod ast;
 mod lexer;
+mod parser;
 mod repl;
 mod token;
 
