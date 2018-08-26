@@ -1,4 +1,6 @@
 #[macro_use]
+extern crate downcast_rs;
+#[macro_use]
 extern crate pretty_assertions;
 use std::{env, io};
 

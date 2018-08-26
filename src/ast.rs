@@ -1,25 +1,32 @@
+use downcast_rs::Downcast;
+
 use super::token::Token;
 
-trait Node {
+pub trait Node {
     fn token_literal(&self) -> String;
 }
 
-struct Statement {}
-impl Node for Statement {
-    fn token_literal(&self) -> String {
-        unimplemented!()
-    }
+pub trait Statement: Node + Downcast + AsStatement {
+    fn statement_node(&self);
 }
+impl_downcast!(Statement);
 
-struct Expression {}
-impl Node for Expression {
-    fn token_literal(&self) -> String {
-        unimplemented!()
-    }
+pub trait Expression: Node + Downcast {
+    fn expression_node(&self);
 }
+impl_downcast!(Expression);
+
+//
+// Program
+//
 
 pub struct Program {
-    statements: Vec<Statement>,
+    pub statements: Vec<Box<Statement>>,
+}
+impl Program {
+    pub fn new() -> Program {
+        Program { statements: vec![] }
+    }
 }
 
 impl Program {
@@ -32,10 +39,31 @@ impl Program {
     }
 }
 
-struct LetStatement {
-    token: Token,
-    name: Identifier,
-    value: Expression,
+//
+// Identifier
+//
+
+#[derive(Debug)]
+pub struct Identifier {
+    pub token: Token,
+    pub value: String,
+}
+
+impl Node for Identifier {
+    fn token_literal(&self) -> String {
+        self.token.literal.clone()
+    }
+}
+
+//
+// Let
+//
+
+#[derive(Debug)]
+pub struct LetStatement {
+    pub token: Token,
+    pub name: Identifier,
+    //pub value: Option<Box<Expression>>,
 }
 
 impl Node for LetStatement {
@@ -44,13 +72,24 @@ impl Node for LetStatement {
     }
 }
 
-struct Identifier {
-    token: Token,
-    value: String,
+impl Statement for LetStatement {
+    fn statement_node(&self) {}
 }
 
-impl Node for Identifier {
-    fn token_literal(&self) -> String {
-        self.token.literal.clone()
+//
+// Upcast
+//
+
+pub trait AsStatement {
+    fn as_statement(&self) -> &Statement;
+    fn as_box_statement(self) -> Box<Statement>;
+}
+impl<T: Statement> AsStatement for T {
+    fn as_statement(&self) -> &Statement {
+        self
+    }
+
+    fn as_box_statement(self) -> Box<Statement> {
+        Box::new(self)
     }
 }
